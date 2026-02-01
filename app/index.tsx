@@ -1,6 +1,6 @@
-import { Text, View, Button } from "react-native";
-import { useState, useEffect } from "react";
 import * as Location from 'expo-location';
+import { useState } from "react";
+import { Button, Text, View } from "react-native";
 
 type weatherData = {
   temperature: number;
