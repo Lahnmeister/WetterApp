@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
-import { useState } from "react";
-import { Button, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Text, View } from "react-native";
 
 type weatherData = {
   temperature: number;
@@ -13,13 +13,13 @@ export default function Index() {
   async function getLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-      console.log('Permission to access location was denied');
+      //console.log('Permission to access location was denied');
       return;
     }
     else {
       let location = await Location.getCurrentPositionAsync({ accuracy: 6 });
       setLocation(location);
-      console.log(location);
+      //console.log(location);
     }
   }
 
@@ -29,6 +29,12 @@ export default function Index() {
     setWeather({ temperature: data.current.temperature_2m });
   }
 
+  useEffect(() => {
+    console.log("useEffect");
+    getLocation();
+    getTemperatur();
+  }, [location?.coords.latitude, location?.coords.longitude]);
+
   return (
     <View
       style={{
@@ -36,7 +42,7 @@ export default function Index() {
         justifyContent: "center",
         alignItems: "center",
       }}
-    > <Button title="Standort abrufen" onPress={() => { getLocation(); getTemperatur(); }} />
+    > 
       {/* <Text>{location ? `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}` : "Standort nicht abgerufen"}</Text> */}
       <Text>{weather ? `Temperatur: ${weather.temperature}°C` : "Keine Wetterdaten verfügbar"}</Text>
     </View>
