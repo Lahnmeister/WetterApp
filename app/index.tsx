@@ -19,35 +19,24 @@ export default function Index() {
   const storage = createAsyncStorage("appDB");
 
   async function getLocation() {
-    if (permissionStatus?.status == 'granted') {
-      const jsonValue = await storage.getItem("location");
-      if (jsonValue != null) {
-        const storedLocation: Location.LocationObject = JSON.parse(jsonValue);
-        setLocation(storedLocation);
-        //console.log('Location retrieved from AsyncStorage: ' + jsonValue);
-        return;
-      }
-      else { }
+    console.log(storage);
+    const jsonValue = await storage.getItem("location");
+    if (jsonValue !== null) {
+      const parsedLocation = JSON.parse(jsonValue);
+      setLocation(parsedLocation);
     }
     else {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setPermissionStatus({ status: 'denied' });
-
+      }
+      else {
         let location = await Location.getCurrentPositionAsync({ accuracy: 6 });
         setPermissionStatus({ status: 'granted' });
-        const storeData = async () => {
-          try {
-            const jsonValue = JSON.stringify(location);
-            await storage.setItem("location", jsonValue);
-          }
-          catch (e) {
-            console.log('Error saving location to AsyncStorage: ' + e);
-          }
-        }
-        storeData();
+        const jsonValue = JSON.stringify(location);
+        await storage.setItem("location", jsonValue);
         setLocation(location);
-        //console.log(location);
+        console.log(location);
       }
     }
   }
@@ -55,16 +44,20 @@ export default function Index() {
   const getTemperatur = async () => {
     const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + location?.coords.latitude + '&longitude=' + location?.coords.longitude + '&current=temperature_2m')
     const data = await response.json();
+    console.log(data);
     setWeather({ temperature: data.current.temperature_2m });
   }
 
   useEffect(() => {
-    if (location == null) {
+    console.log(storage);
+    if (storage === null) {
       getLocation();
     }
     else {
-      getTemperatur();
+
     }
+    getTemperatur();
+    //console.log('Temperatur abgefragt');
   }, [weather?.temperature]);
 
   return (
